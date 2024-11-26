@@ -6,9 +6,12 @@ const searchMessage = require('../controllers/messageControllers/searchMessage')
 const viewMessage = require('../controllers/messageControllers/viewMessage');
 const listMessages = require('../controllers/messageControllers/listMessages');
 
+const roleMiddleware = require('../middleware/roleMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
+
 const router = express.Router();
 
-router.post('/send', postMessage);
+router.post('/send', authMiddleware, roleMiddleware(['volunteer']), postMessage);
 router.put('/:message_id', editMessage);
 router.delete('/:message_id', deleteMessage);
 router.get('/search', searchMessage);

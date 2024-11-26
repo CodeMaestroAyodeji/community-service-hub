@@ -7,12 +7,13 @@ const listOpportunities = require('../controllers/opportunityControllers/listOpp
 const searchOpportunity = require('../controllers/opportunityControllers/searchOpportunity');
 
 const authMiddleware = require('../middleware/authMiddleware');
+const roleMiddleware = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
-router.post('/post', authMiddleware, postOpportunity);
-router.put('/:opportunity_id', editOpportunity);
-router.delete('/:opportunity_id', deleteOpportunity);
+router.post('/post', authMiddleware, roleMiddleware(['organization']), postOpportunity);
+router.put('/:opportunity_id', roleMiddleware(['organization']), editOpportunity);
+router.delete('/:opportunity_id', roleMiddleware(['organization']), deleteOpportunity); 
 router.get('/:opportunity_id', viewOpportunity);
 router.get('/', listOpportunities);
 router.get('/search', searchOpportunity);
