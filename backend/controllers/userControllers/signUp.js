@@ -12,7 +12,8 @@ const signUp = async (req, res) => {
         );
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Signup Error:', err); // Log the error to console
+        res.status(500).json({ error: err.message || 'An unknown error occurred' });
     }
 };
 

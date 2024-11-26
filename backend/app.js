@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const userRoutes = require('./routes/userRoutes');
 const opportunityRoutes = require('./routes/opportunityRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,6 +14,7 @@ app.use(cors());
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/opportunities', opportunityRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Default route
 app.get('/', (req, res) => {

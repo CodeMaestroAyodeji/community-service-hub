@@ -8,8 +8,10 @@ const postOpportunity = async (req, res) => {
             'INSERT INTO opportunities (title, description, location, date, contact_info, organization_id) VALUES (?, ?, ?, ?, ?, ?)',
             [title, description, location, date, contact_info, organization_id]
         );
-        res.status(201).json({ message: 'Opportunity created successfully' });
+
+        res.status(201).json({ message: 'Opportunity created successfully', opportunity_id: result.insertId });
     } catch (err) {
+        console.error('Error posting opportunity:', err);
         res.status(500).json({ error: err.message });
     }
 };
