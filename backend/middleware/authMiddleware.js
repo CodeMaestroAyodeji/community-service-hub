@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger');
 
 const authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
@@ -9,10 +8,10 @@ const authMiddleware = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; // Attach user info to req.user
 
-        logger('info', 'JWT token decoded', { userId: decoded.id });
+        console.log('JWT token decoded', { userId: decoded.id });
         next();
     } catch (err) {
-        logger('error', 'JWT Verification error', { error: err.message });
+        console.error('JWT Verification error', { error: err.message });
         res.status(400).json({ error: 'Invalid token.' });
     }
 };

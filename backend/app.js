@@ -9,7 +9,6 @@ const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const metricsRoutes = require('./routes/metricsRoutes');
 const errorHandler = require('./middleware/errorHandler');
-const logger = require('./utils/logger');
 
 const app = express();
 
@@ -19,7 +18,7 @@ app.use(cors());
 
 // Log each request
 app.use((req, res, next) => {
-    logger('info', 'Incoming request', {
+    console.log('Incoming request', {
         method: req.method,
         url: req.originalUrl,
         body: req.body,

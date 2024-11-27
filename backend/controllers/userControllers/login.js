@@ -1,7 +1,6 @@
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const logger = require('../../utils/logger');
 const CustomError = require('../../utils/customError');
 require('dotenv').config();
 
@@ -9,7 +8,7 @@ const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     try {
-        logger('info', 'Login attempt', { email });
+        console.log('Login attempt', { email });
 
         // Fetch user by email
         const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -30,10 +29,10 @@ const login = async (req, res, next) => {
             { expiresIn: '1h' }
         );
 
-        logger('info', 'Login successful', { userId: user.id });
+        console.log('Login successful', { userId: user.id });
         res.status(200).json({ message: 'Login successful', token });
     } catch (err) {
-        logger('error', 'Error during login', { error: err.message, email });
+        console.error('Error during login', { error: err.message, email });
         next(err); // Pass to global error handler
     }
 };
