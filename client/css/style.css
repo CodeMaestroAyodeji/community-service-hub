@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #f9f9f9;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+ul li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: red;
+}
+
+header {
+    width: calc(100% - 200px);
+    padding: 0 100px;
+    display: flex;
+    flex-direction: row;
+}
