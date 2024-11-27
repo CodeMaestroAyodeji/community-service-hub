@@ -1,34 +1,29 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const searchMessage = async (req, res) => {
-    console.log('Inside searchMessage controller'); // Debug log
+const searchMessage = async (req, res, next) => {
     const { keyword } = req.query;
 
-    if (!keyword) {
-        console.log('No keyword provided'); // Debug log
-        return res.status(400).json({ error: 'Keyword is required for searching messages.' });
-    }
-
-    console.log('Received keyword:', keyword); // Debug log
-
     try {
-        const [messages] = await db.query(
-            'SELECT * FROM messages WHERE message LIKE ?',
-            [`%${keyword}%`]
-        );
+        logger('info', 'Searching messages', { keyword });
 
-        console.log('Search results:', messages); // Debug log
-
-        if (messages.length === 0) {
-            return res.status(404).json({ error: 'No messages found matching the keyword.' });
+        if (!keyword) {
+            throw new CustomError('Keyword is required for searching messages.', 400);
         }
 
+        const [messages] = await db.query('SELECT * FROM messages WHERE message LIKE ?', [`%${keyword}%`]);
+
+        if (messages.length === 0) {
+            throw new CustomError('No messages found matching the keyword.', 404);
+        }
+
+        logger('info', 'Messages fetched successfully', { keyword });
         res.status(200).json(messages);
     } catch (err) {
-        console.error('Error searching messages:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error searching messages', { error: err.message, keyword });
+        next(err);
     }
 };
-
 
 module.exports = searchMessage;

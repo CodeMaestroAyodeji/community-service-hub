@@ -1,19 +1,28 @@
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const signUp = async (req, res) => {
+const signUp = async (req, res, next) => {
     const { name, email, password, role } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-        const [result] = await db.query(
+        logger('info', 'Signup attempt', { email });
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert user into the database
+        await db.query(
             'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
             [name, email, hashedPassword, role]
         );
+
+        logger('info', 'User registered successfully', { email });
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
-        console.error('Signup Error:', err); // Log the error to console
-        res.status(500).json({ error: err.message || 'An unknown error occurred' });
+        logger('error', 'Error during signup', { error: err.message, email });
+        next(err); // Pass to global error handler
     }
 };
 

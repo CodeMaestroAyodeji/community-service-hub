@@ -1,31 +1,29 @@
 const db = require('../../config/db');
-const bcrypt = require('bcryptjs');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const updateProfile = async (req, res) => {
-    const { id } = req.user; // Use `id` directly
+const updateProfile = async (req, res, next) => {
+    const { id } = req.user; // Extract user ID from the token
     const { name, email } = req.body;
 
     try {
-        console.log('Updating profile for id:', id); // Debug log
+        logger('info', 'Profile update attempt', { userId: id });
 
-        const [existingUser] = await db.query(
-            'SELECT id FROM users WHERE id = ?',
-            [id]
-        );
+        // Check if the user exists
+        const [existingUser] = await db.query('SELECT id FROM users WHERE id = ?', [id]);
 
         if (existingUser.length === 0) {
-            return res.status(404).json({ error: 'User not found.' });
+            throw new CustomError('User not found.', 404);
         }
 
-        await db.query(
-            'UPDATE users SET name = ?, email = ? WHERE id = ?',
-            [name, email, id]
-        );
+        // Update the user's profile
+        await db.query('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, id]);
 
+        logger('info', 'Profile updated successfully', { userId: id });
         res.status(200).json({ message: 'Profile updated successfully.' });
     } catch (err) {
-        console.error('Error updating profile:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error updating profile', { error: err.message, userId: id });
+        next(err); // Pass to global error handler
     }
 };
 

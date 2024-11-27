@@ -1,22 +1,24 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const viewMessage = async (req, res) => {
+const viewMessage = async (req, res, next) => {
     const { message_id } = req.params;
 
     try {
-        const [message] = await db.query(
-            'SELECT * FROM messages WHERE id = ?',
-            [message_id]
-        );
+        logger('info', 'Fetching message', { messageId: message_id });
+
+        const [message] = await db.query('SELECT * FROM messages WHERE id = ?', [message_id]);
 
         if (message.length === 0) {
-            return res.status(404).json({ error: 'Message not found.' });
+            throw new CustomError('Message not found.', 404);
         }
 
+        logger('info', 'Message fetched successfully', { messageId: message_id });
         res.status(200).json(message[0]);
     } catch (err) {
-        console.error('Error fetching message:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error fetching message', { error: err.message, messageId: message_id });
+        next(err);
     }
 };
 

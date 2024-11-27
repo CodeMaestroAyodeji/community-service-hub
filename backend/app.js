@@ -7,10 +7,24 @@ const userRoutes = require('./routes/userRoutes');
 const opportunityRoutes = require('./routes/opportunityRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const errorHandler = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 const app = express();
+
+// Middleware
 app.use(bodyParser.json());
 app.use(cors());
+
+// Log each request
+app.use((req, res, next) => {
+    logger('info', 'Incoming request', {
+        method: req.method,
+        url: req.originalUrl,
+        body: req.body,
+    });
+    next();
+});
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -18,11 +32,13 @@ app.use('/api/opportunities', opportunityRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-
 // Default route
 app.get('/', (req, res) => {
     res.send('Community Service Hub API is running!');
 });
+
+// Error handler (should be the last middleware)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

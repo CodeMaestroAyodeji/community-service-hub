@@ -1,22 +1,24 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const deleteMessage = async (req, res) => {
+const deleteMessage = async (req, res, next) => {
     const { message_id } = req.params;
 
     try {
-        const [result] = await db.query(
-            'DELETE FROM messages WHERE id = ?',
-            [message_id]
-        );
+        logger('info', 'Deleting message', { messageId: message_id });
+
+        const [result] = await db.query('DELETE FROM messages WHERE id = ?', [message_id]);
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Message not found.' });
+            throw new CustomError('Message not found.', 404);
         }
 
-        res.status(200).json({ message: 'Message deleted successfully' });
+        logger('info', 'Message deleted successfully', { messageId: message_id });
+        res.status(200).json({ message: 'Message deleted successfully.' });
     } catch (err) {
-        console.error('Error deleting message:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error deleting message', { error: err.message, messageId: message_id });
+        next(err);
     }
 };
 

@@ -1,22 +1,24 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const viewOpportunity = async (req, res) => {
+const viewOpportunity = async (req, res, next) => {
     const { opportunity_id } = req.params;
 
     try {
-        const [opportunity] = await db.query(
-            'SELECT * FROM opportunities WHERE id = ?',
-            [opportunity_id]
-        );
+        logger('info', 'Fetching opportunity', { opportunityId: opportunity_id });
+
+        const [opportunity] = await db.query('SELECT * FROM opportunities WHERE id = ?', [opportunity_id]);
 
         if (opportunity.length === 0) {
-            return res.status(404).json({ error: 'Opportunity not found.' });
+            throw new CustomError('Opportunity not found.', 404);
         }
 
+        logger('info', 'Opportunity fetched successfully', { opportunityId: opportunity_id });
         res.status(200).json(opportunity[0]);
     } catch (err) {
-        console.error('Error fetching opportunity:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error fetching opportunity', { error: err.message, opportunityId: opportunity_id });
+        next(err);
     }
 };
 

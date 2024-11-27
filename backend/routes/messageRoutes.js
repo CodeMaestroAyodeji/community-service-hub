@@ -5,19 +5,18 @@ const deleteMessage = require('../controllers/messageControllers/deleteMessage')
 const searchMessage = require('../controllers/messageControllers/searchMessage');
 const viewMessage = require('../controllers/messageControllers/viewMessage');
 const listMessages = require('../controllers/messageControllers/listMessages');
-
 const roleMiddleware = require('../middleware/roleMiddleware');
 const authMiddleware = require('../middleware/authMiddleware');
+const controllerWrapper = require('../utils/controllerWrapper');
 
 const router = express.Router();
 
-router.post('/send', authMiddleware, roleMiddleware(['volunteer']), postMessage);
-router.put('/:message_id', editMessage);
-router.delete('/:message_id', deleteMessage);
-router.get('/search', searchMessage);
-router.get('/:message_id', viewMessage);
-router.get('/', listMessages);
-
-
+// Routes
+router.post('/send', authMiddleware, roleMiddleware(['volunteer']), controllerWrapper(postMessage));
+router.put('/:message_id', authMiddleware, controllerWrapper(editMessage));
+router.delete('/:message_id', authMiddleware, controllerWrapper(deleteMessage));
+router.get('/search', controllerWrapper(searchMessage));
+router.get('/:message_id', controllerWrapper(viewMessage));
+router.get('/', controllerWrapper(listMessages));
 
 module.exports = router;

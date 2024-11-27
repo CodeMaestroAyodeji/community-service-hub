@@ -5,18 +5,18 @@ const deleteOpportunity = require('../controllers/opportunityControllers/deleteO
 const viewOpportunity = require('../controllers/opportunityControllers/viewOpportunity');
 const listOpportunities = require('../controllers/opportunityControllers/listOpportunities');
 const searchOpportunity = require('../controllers/opportunityControllers/searchOpportunity');
-
 const authMiddleware = require('../middleware/authMiddleware');
 const roleMiddleware = require('../middleware/roleMiddleware');
+const controllerWrapper = require('../utils/controllerWrapper');
 
 const router = express.Router();
 
-router.post('/post', authMiddleware, roleMiddleware(['organization']), postOpportunity);
-router.put('/:opportunity_id', roleMiddleware(['organization']), editOpportunity);
-router.delete('/:opportunity_id', roleMiddleware(['organization']), deleteOpportunity); 
-router.get('/:opportunity_id', viewOpportunity);
-router.get('/', listOpportunities);
-router.get('/search', searchOpportunity);
-
+// Routes
+router.post('/post', authMiddleware, roleMiddleware(['organization']), controllerWrapper(postOpportunity));
+router.put('/:opportunity_id', authMiddleware, roleMiddleware(['organization']), controllerWrapper(editOpportunity));
+router.delete('/:opportunity_id', authMiddleware, roleMiddleware(['organization']), controllerWrapper(deleteOpportunity));
+router.get('/:opportunity_id', controllerWrapper(viewOpportunity));
+router.get('/', controllerWrapper(listOpportunities));
+router.get('/search', controllerWrapper(searchOpportunity));
 
 module.exports = router;

@@ -1,14 +1,17 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const listMessages = async (req, res) => {
+const listMessages = async (req, res, next) => {
     const { page = 1, limit = 10, volunteer_id, opportunity_id } = req.query;
     const offset = (page - 1) * limit;
 
     try {
+        logger('info', 'Listing messages', { page, limit, volunteerId: volunteer_id, opportunityId: opportunity_id });
+
         let query = 'SELECT * FROM messages';
         const params = [];
 
-        // Add filters for volunteer_id and opportunity_id if provided
         if (volunteer_id) {
             query += ' WHERE volunteer_id = ?';
             params.push(volunteer_id);
@@ -23,42 +26,22 @@ const listMessages = async (req, res) => {
 
         const [messages] = await db.query(query, params);
 
-        // Get total number of messages for pagination metadata
-        let countQuery = 'SELECT COUNT(*) as total FROM messages';
-        const countParams = [];
+        const [countResult] = await db.query(
+            'SELECT COUNT(*) as total FROM messages ' + query.split('WHERE')[1],
+            params.slice(0, params.length - 2)
+        );
 
-        if (volunteer_id) {
-            countQuery += ' WHERE volunteer_id = ?';
-            countParams.push(volunteer_id);
-        }
-        if (opportunity_id) {
-            countQuery += volunteer_id ? ' AND opportunity_id = ?' : ' WHERE opportunity_id = ?';
-            countParams.push(opportunity_id);
-        }
-
-        const [countResult] = await db.query(countQuery, countParams);
         const total = countResult[0].total;
 
-        // Validate the requested page
         if (offset >= total) {
-            return res.status(404).json({
-                error: 'Requested page exceeds available data.',
-                total,
-                page: parseInt(page),
-                limit: parseInt(limit),
-                messages: [],
-            });
+            throw new CustomError('Requested page exceeds available data.', 404);
         }
 
-        res.status(200).json({
-            total,
-            page: parseInt(page),
-            limit: parseInt(limit),
-            messages,
-        });
+        logger('info', 'Messages listed successfully', { page, limit, total });
+        res.status(200).json({ total, page: parseInt(page), limit: parseInt(limit), messages });
     } catch (err) {
-        console.error('Error listing messages:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error listing messages', { error: err.message });
+        next(err);
     }
 };
 

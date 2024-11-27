@@ -1,39 +1,38 @@
 const db = require('../../config/db');
 const bcrypt = require('bcryptjs');
+const logger = require('../../utils/logger');
+const CustomError = require('../../utils/customError');
 
-const changePassword = async (req, res) => {
-    const { id } = req.user; // Use `id` directly
+const changePassword = async (req, res, next) => {
+    const { id } = req.user; // Extract user ID from the token
     const { old_password, new_password } = req.body;
 
     try {
-        console.log('Changing password for id:', id); // Debug log
+        logger('info', 'Password change attempt', { userId: id });
 
-        const [user] = await db.query(
-            'SELECT password FROM users WHERE id = ?',
-            [id]
-        );
+        // Fetch user from the database
+        const [user] = await db.query('SELECT password FROM users WHERE id = ?', [id]);
 
         if (user.length === 0) {
-            return res.status(404).json({ error: 'User not found.' });
+            throw new CustomError('User not found.', 404);
         }
 
+        // Verify current password
         const isMatch = await bcrypt.compare(old_password, user[0].password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Incorrect current password.' });
+            throw new CustomError('Incorrect current password.', 400);
         }
 
+        // Hash and update the new password
         const hashedPassword = await bcrypt.hash(new_password, 10);
-        await db.query(
-            'UPDATE users SET password = ? WHERE id = ?',
-            [hashedPassword, id]
-        );
+        await db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, id]);
 
+        logger('info', 'Password updated successfully', { userId: id });
         res.status(200).json({ message: 'Password updated successfully.' });
     } catch (err) {
-        console.error('Error changing password:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error changing password', { error: err.message, userId: id });
+        next(err); // Pass to global error handler
     }
 };
 
 module.exports = changePassword;
-

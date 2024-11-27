@@ -1,14 +1,16 @@
 const db = require('../../config/db');
+const logger = require('../../utils/logger');
 
-const listOpportunities = async (req, res) => {
-    const { page = 1, limit = 10, start_date, end_date } = req.query; // Include date filters
+const listOpportunities = async (req, res, next) => {
+    const { page = 1, limit = 10, start_date, end_date } = req.query;
     const offset = (page - 1) * limit;
 
     try {
+        logger('info', 'Listing opportunities', { page, limit, start_date, end_date });
+
         let query = 'SELECT * FROM opportunities';
         const params = [];
 
-        // Add date filtering logic
         if (start_date || end_date) {
             query += ' WHERE';
             if (start_date) {
@@ -25,35 +27,18 @@ const listOpportunities = async (req, res) => {
         params.push(parseInt(limit), parseInt(offset));
 
         const [opportunities] = await db.query(query, params);
+        const [countResult] = await db.query('SELECT COUNT(*) as total FROM opportunities', params);
 
-        // Get total number of opportunities for pagination metadata
-        let countQuery = 'SELECT COUNT(*) as total FROM opportunities';
-        const countParams = [];
-
-        if (start_date || end_date) {
-            countQuery += ' WHERE';
-            if (start_date) {
-                countQuery += ' date >= ?';
-                countParams.push(start_date);
-            }
-            if (end_date) {
-                countQuery += start_date ? ' AND date <= ?' : ' date <= ?';
-                countParams.push(end_date);
-            }
-        }
-
-        const [countResult] = await db.query(countQuery, countParams);
-        const total = countResult[0].total;
-
+        logger('info', 'Opportunities listed successfully', { total: countResult[0].total });
         res.status(200).json({
-            total,
+            total: countResult[0].total,
             page: parseInt(page),
             limit: parseInt(limit),
             opportunities,
         });
     } catch (err) {
-        console.error('Error listing opportunities:', err);
-        res.status(500).json({ error: err.message });
+        logger('error', 'Error listing opportunities', { error: err.message });
+        next(err);
     }
 };
 
