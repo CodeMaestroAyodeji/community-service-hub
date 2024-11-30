@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opportunities - Community Service Hub</title>
+    <title>Opportunity Details - Community Service Hub</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="css/opportunities.css" rel="stylesheet">
+    <link href="css/opportunity-details.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navbar -->
@@ -18,27 +18,30 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="notifications.html">Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="opportunities.html">Opportunities</a></li>
                 <li class="nav-item"><a class="nav-link" href="messages.html">Messages</a></li>
                 <li class="nav-item"><a class="nav-link text-danger" href="login.html">Logout</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Opportunities Content -->
+    <!-- Opportunity Details Content -->
     <div class="container mt-5">
-        <h3 class="text-center">Opportunities</h3>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <input type="text" id="search" class="form-control" placeholder="Search opportunities...">
-                </div>
-                <div id="opportunitiesList" class="list-group"></div>
+        <div id="opportunityDetails" class="card">
+            <div class="card-body">
+                <h3 class="card-title" id="title">Loading...</h3>
+                <p class="card-text" id="description"></p>
+                <p><strong>Location:</strong> <span id="location"></span></p>
+                <p><strong>Date:</strong> <span id="date"></span></p>
+                <p><strong>Contact Info:</strong> <span id="contactInfo"></span></p>
             </div>
+        </div>
+        <div class="mt-4 text-center">
+            <button id="sendMessageBtn" class="btn btn-primary">Message Organizer</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.16/dist/sweetalert2.all.min.js"></script>
-    <script src="js/opportunities.js"></script>
+    <script src="js/opportunity-details.js"></script>
 </body>
 </html>

@@ -1,33 +1,50 @@
-const db = require('../../config/db');
+const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
-const logger = require('../../utils/logger');
+const db = require('../../config/db');
 const CustomError = require('../../utils/customError');
-require('dotenv').config();
+
+const sendResetPasswordEmail = async (user) => {
+    const resetToken = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    });
+
+    const resetLink = `http://localhost:5000/api/users/reset-password/${resetToken}`;
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'Password Reset Request',
+        html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+};
 
 const forgotPassword = async (req, res, next) => {
     const { email } = req.body;
 
     try {
-        logger('info', 'Forgot password attempt', { email });
+        const [user] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
 
-        // Check if user exists
-        const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-        if (users.length === 0) {
+        if (user.length === 0) {
             throw new CustomError('User not found.', 404);
         }
 
-        const userId = users[0].id;
+        // Send reset password email
+        await sendResetPasswordEmail(user[0]);
 
-        // Generate reset token
-        const resetToken = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
-
-        // Simulate email sending (replace with real email service)
-        console.log(`Reset password token (send this via email): ${resetToken}`);
-
-        logger('info', 'Password reset token generated', { userId });
-        res.status(200).json({ message: 'Password reset token sent to your email.' });
+        res.status(200).json({ message: 'Password reset email sent successfully' });
     } catch (err) {
-        logger('error', 'Error during forgot password', { error: err.message });
         next(err);
     }
 };

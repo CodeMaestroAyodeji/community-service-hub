@@ -63,3 +63,9 @@ h2 {
 .mt-3 a:hover {
     text-decoration: underline;
 }
+
+/* Spinner style */
+#spinner {
+    display: none;
+    text-align: center;
+}

@@ -4,7 +4,8 @@ const login = require('../controllers/userControllers/login');
 const updateProfile = require('../controllers/userControllers/updateProfile');
 const changePassword = require('../controllers/userControllers/changePassword');
 const userLogout = require('../controllers/userControllers/userLogout');
-const userEmailVerification = require('../controllers/userControllers/userEmailVerification');
+const sendVerificationEmail = require('../controllers/userControllers/sendVerificationEmail'); // Updated
+const verifyEmailToken = require('../controllers/userControllers/verifyEmailToken'); // Updated
 const forgotPassword = require('../controllers/userControllers/forgotPassword');
 const resetPassword = require('../controllers/userControllers/resetPassword');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -17,9 +18,10 @@ router.post('/signup', controllerWrapper(signUp));
 router.post('/login', controllerWrapper(login));
 router.put('/profile', authMiddleware, controllerWrapper(updateProfile));
 router.put('/password', authMiddleware, controllerWrapper(changePassword));
-router.post('/reset-password', controllerWrapper(resetPassword));
+router.get('/verify-email/:token', controllerWrapper(verifyEmailToken)); // Handles token verification
+router.post('/resend-verification', authMiddleware, controllerWrapper(sendVerificationEmail)); // Sends verification email
 router.post('/forgot-password', controllerWrapper(forgotPassword));
-router.post('/verify-email', controllerWrapper(userEmailVerification));
+router.post('/reset-password', controllerWrapper(resetPassword));
 router.post('/logout', authMiddleware, controllerWrapper(userLogout));
 
 module.exports = router;

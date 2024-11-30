@@ -13,6 +13,9 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
         role: role
     };
 
+    // Show the spinner while the API call is in progress
+    document.getElementById("spinner").style.display = "block";
+
     // Make the API call to the backend
     fetch('http://localhost:5000/api/users/signup', {
         method: 'POST',
@@ -23,17 +26,20 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
     })
     .then(response => response.json())
     .then(data => {
-        if (data.message === 'User registered successfully') {
+        // Hide the spinner
+        document.getElementById("spinner").style.display = "none";
+
+        if (data.message && data.message.includes('User registered successfully')) {
             // Show success alert
             Swal.fire({
                 title: 'Success!',
-                text: 'Your account has been created successfully.',
+                text: 'Your account has been created successfully. Check your email to verify your account.',
                 icon: 'success',
                 confirmButtonText: 'Okay'
             }).then(() => {
                 window.location.href = 'login.html'; // Redirect to login page
             });
-        } else {
+        } else if (data.error) {
             // Show error alert
             Swal.fire({
                 title: 'Error!',
@@ -44,6 +50,8 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
         }
     })
     .catch(error => {
+        // Hide the spinner and show error message
+        document.getElementById("spinner").style.display = "none";
         console.error('Error:', error);
         Swal.fire({
             title: 'Error!',
