@@ -26,11 +26,11 @@ const login = async (req, res, next) => {
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '6h' }
         );
 
         console.log('Login successful', { userId: user.id });
-        res.status(200).json({ message: 'Login successful', token });
+        res.status(200).json({ message: 'Login successful', token, role: user.role }); // Include role
     } catch (err) {
         console.error('Error during login', { error: err.message, email });
         next(err); // Pass to global error handler

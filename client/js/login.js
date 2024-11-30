@@ -20,15 +20,19 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     .then(response => response.json())
     .then(data => {
         if (data.message === 'Login successful') {
-            // Show success alert
-            Swal.fire({
-                title: 'Success!',
-                text: 'You have logged in successfully.',
-                icon: 'success',
-                confirmButtonText: 'Okay'
-            }).then(() => {
-                window.location.href = 'dashboard.html'; // Redirect to dashboard
-            });
+            // Check role and redirect to respective dashboard
+            if (data.role === 'volunteer') {
+                window.location.href = 'volunteer-dashboard.html';
+            } else if (data.role === 'organization') {
+                window.location.href = 'organization-dashboard.html';
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Unknown role detected. Please contact support.',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+            }
         } else {
             // Show error alert
             Swal.fire({
