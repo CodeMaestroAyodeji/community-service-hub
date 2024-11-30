@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Attach the logout listener for all pages  
+    attachLogoutListener();  
+    
     const messagesList = document.getElementById("messagesList");
 
     const fetchMessages = () => {

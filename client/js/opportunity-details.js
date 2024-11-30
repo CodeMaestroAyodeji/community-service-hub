@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Attach the logout listener for all pages  
+    attachLogoutListener();  
+    
     const urlParams = new URLSearchParams(window.location.search);
     const opportunityId = urlParams.get("id");
 

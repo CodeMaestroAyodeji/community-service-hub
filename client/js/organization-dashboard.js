@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Attach the logout listener for all pages  
+    attachLogoutListener();  
+    
     const totalOpportunitiesEl = document.getElementById("totalOpportunities");
     const messagesReceivedEl = document.getElementById("messagesReceived");
     const notificationsEl = document.getElementById("notifications");

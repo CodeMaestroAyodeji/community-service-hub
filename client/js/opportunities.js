@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Attach the logout listener for all pages  
+    attachLogoutListener();  
+
     const searchInput = document.getElementById("search");
     const opportunitiesList = document.getElementById("opportunitiesList");
 
